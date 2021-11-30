@@ -54,6 +54,13 @@ main:
     call scanf
     mov -8(%rbp), %rdi # first argument for run_func
     
+    # intilliaze run_func
+    mov %r13, %rsi # getting the first pstring
+    mov %r12, %rdx # getting the second pstring
+    
+    call run_func
+    
+   
     
     ret
     
