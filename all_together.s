@@ -149,9 +149,6 @@ run_func:
     
     
     
-    
-    
-    
 .case53:
     mov -1(%r13), %rdi
     mov -1(%r12), %rsi
@@ -179,4 +176,21 @@ run_func:
 pstrlen:
     movzbq (%rdi), %rax
     ret
+    
+replaceChar:
+    # string in rsi
+    # old char in rdi
+    # new char in rdx
+    xor %r9, %r9 # r9 as counter
+    movzbq %rsi, %r10 # put the length of the string in r10
+.loopCheck
+    cmp %r9, %r10 # check if i == pstring length
+    jne .inLoop # if not means i< pstring length so jump to inLoop
+    ret
+.inLoop
+    
+    
+    
+    
+    
     
