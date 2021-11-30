@@ -6,6 +6,11 @@ format_for_string: .string "%s"
 end_character:    .string "\0"
 case_50_60: .string "first pstring length: %d, second pstring length: %d\n"
 error:  .string "Invalid option!\n"
+format_for_char:    .string "%c"
+case52_oldchar: .string "old char: %c,"
+case52_newchar: .string "new char: %c,"
+case52_firststring: .string "first string: %s,"
+case52_secondstring:    .string "second string: %s\n"
 
 
 .text
@@ -112,10 +117,33 @@ run_func:
 
  
  .case52:
-    mov -1(%r13), %rdi
-    mov -1(%r12), %rsi
+    push %rbp
+    mov %rsp, %rbp
+    sub $16, %rsp 
+    push %r14 # for the old char
+    push %r15 # for the new char
+    
+    # getting the old char
+    leaq -8(%rbp), %rsi # allocating memory for the char
     xor %rax, %rax
-    call printf
+    movq $format_for_string, %rdi # first argument for scanf
+    call scanf
+    movzbq -8(%rbp), %r14 # save the old char in r14
+    
+    # getting the new char
+    leaq -16(%rbp), %rsi # allocating memory for the char
+    xor %rax, %rax
+    movq $format_for_string, %rdi # first argument for scanf
+    call scanf
+    movzbq -16(%rbp), %r15 # save the old char in r14
+    
+    # replace all char in the first string
+    
+    
+    
+    
+    
+    
     
 .case53:
     mov -1(%r13), %rdi
