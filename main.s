@@ -13,7 +13,7 @@ main:
     pushq %rbp
     movq  %rsp, %rbp
     subq  $528, %rsp 
-    push  %r11 # first pstring
+    push  %r13 # first pstring
     push  %r12 # second pstring
     xorq  %rax, %rax
     
@@ -21,11 +21,11 @@ main:
     leaq  -536(%rbp), %rsi  # second argument
     xor   %rax, %rax
     call  scanf
-    leaq  -528(%rbp), %r11 # for the scanf string
-    addq  $1, %r10    # add 1 for string len
+    leaq  -528(%rbp), %r13 # for the scanf string
+    addq  $1, %r13    # add 1 for string len
    
     movq  $format_for_string, %rdi # first argument for scanf 
-    movq  %r11, %rsi # second argument for scanf 
+    movq  %r13, %rsi # second argument for scanf 
     xor   %rax, %rax
     call  scanf
     mov   -536(%rbp), %eax # getting the length of the Pstring put it in eax
