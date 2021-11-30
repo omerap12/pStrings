@@ -137,7 +137,14 @@ run_func:
     call scanf
     movzbq -16(%rbp), %r15 # save the old char in r14
     
-    # replace all char in the first string
+    # call replaceChar for string 1
+    mov %r13, %rsi # first argument (*pstring)
+    mov %r14, %rdi # second argument (char oldChar)
+    mov %r15, %rdx # third argument (char newChar)
+    xor rax,rax
+    call replaceChar
+    mov %rax, %r13 # save the output in r13
+    
     
     
     
