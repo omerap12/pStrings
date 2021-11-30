@@ -46,6 +46,14 @@ main:
     call scanf
     mov   -536(%rbp), %eax # getting the length of the Pstring put it in eax
     mov   %al, -272(%rbp) #puting string lenght in the start of the string
-       
+    
+    # getting the option
+    movq $format_for_int, %rdi # first argument to scanf
+    leaq -8(%rbp), %rsi # second argument
+    xor %rax, %rax
+    call scanf
+    mov -8(%rbp), %rdi # first argument for run_func
+    
     
     ret
+    
