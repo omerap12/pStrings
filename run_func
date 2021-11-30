@@ -1,0 +1,72 @@
+.data
+
+  .section  .rodata
+case_50_60: .string "first pstring length: %d, second pstring length: %d\n"
+error:  .string "Invalid option!\n"
+
+.text
+.globl run_func
+run_func:
+    leaq -60(%rdi), %rsi # compute x = x-60
+    cmpq $0, %rsi # compare x == 0
+    je .case50_60
+    addq $60, %rsi # return x to original size
+    leaq -50(%rdi), %rsi # compute x = x - 60
+    cmpq $0, %rsi # compare x == 0
+    je .case50_60
+    cmpq $2, %rsi # compare x == 2
+    je .case52
+    cmpq $3, %rsi # compare x == 0
+    je .case53
+    cmpq $4, %rsi # compare x == 0
+    je .case54
+    cmpq $5, %rsi # compare x == 0    
+    je .case55
+    jmp .error
+    
+
+.case50_60:
+    mov -1(%r13), %rdi
+    mov -1(%r12), %rsi
+    xor %rax, %rax
+    call printf
+
+ 
+ .case52:
+    mov -1(%r13), %rdi
+    mov -1(%r12), %rsi
+    xor %rax, %rax
+    call printf
+    
+.case53:
+    mov -1(%r13), %rdi
+    mov -1(%r12), %rsi
+    xor %rax, %rax
+    call printf
+
+.case54:
+    mov -1(%r13), %rdi
+    mov -1(%r12), %rsi
+    xor %rax, %rax
+    call printf
+
+.case55:
+    mov -1(%r13), %rdi
+    mov -1(%r12), %rsi
+    xor %rax, %rax
+    call printf
+
+.error:
+    mov $error, %rdi
+    xor %rax, %rax
+    call printf
+    
+ 
+ 
+    
+
+
+    
+    
+    
+    ret
