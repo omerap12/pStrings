@@ -12,11 +12,12 @@ main:
     movq %rsp, %rbp #for correct debugging
     pushq %rbp
     movq  %rsp, %rbp
-    subq  $528, %rsp 
-    push  %r13 # first pstring
-    push  %r12 # second pstring
+    subq  $528, %rsp # allocating 256*2 + 8*2 for the two Pstrings 
+    push  %r13 # the first Pstring
+    push  %r12 # the second Pstring
     xorq  %rax, %rax
     
+    # getting first number and Pstring
     movq  $format_for_int, %rdi  # first argument to scanf
     leaq  -536(%rbp), %rsi  # second argument
     xor   %rax, %rax
