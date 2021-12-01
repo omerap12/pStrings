@@ -288,16 +288,82 @@ run_func:
     mov %rsp, %rbp
     pop %rbp
     ret
-    
-    
-    
-    
 
 .case54:
-    mov -1(%r13), %rdi
-    mov -1(%r12), %rsi
-    xor %rax, %rax
-    call printf
+    
+    mov %r13, %rsi
+    call swapCase
+    mov %r12, %rsi
+    call swapCase
+    
+    
+    ret
+    
+swapCase:
+    # string in rsi
+    # getting the length of the first pstring
+    leaq -1(%rsi), %rdi # argument for pstrlen
+    call pstrlen
+    mov %rax, %r15 # getting the length to %r15
+    xor %r14, %r14 # %r14 as counter (i)
+    
+   
+    
+    
+    #main loop
+.mainLoopswapCase:
+    cmp %r14, %r15 # if i == pstringLength
+    jne .inMainLoopswapCase
+    ret
+    
+    
+.inMainLoopswapCase:
+    xor %r9, %r9 
+    movb (%rsi,%r14,1), %r9b # saving char in %r9b
+    
+    #checking if it's small word
+    # check if its bigger then 96
+    movb $96, %r8b #for comparing reasons
+    cmpb %r8b,%r9b 
+    ja .biggerThan96 # if its bigger than 96 maybe its small word
+    movb $64, %r8b #for comparing reasons
+    cmp %r8b,%r9b 
+    ja .biggerThan64 # if its bigger than 64 maybe its big word
+    inc %r14
+    jmp .mainLoopswapCase
+    
+
+
+.biggerThan96:
+    movb $123, %r8b #for comparing reasons
+    cmp %r8b,%r9b 
+    jb .lowerThan123 # if its lower than 123 means its small word
+    inc %r14 # i = i+1
+    jmp .mainLoopswapCase # got to main loop again
+    
+
+.lowerThan123:
+    sub $32, %r9b
+    mov %r9b, (%rsi, %r14, 1)
+    inc %r14 # i = i+1
+    jmp .mainLoopswapCase # got to main loop again
+    
+.biggerThan64:
+    movb $91, %r8b #for comparing reasons
+    cmp %r8b,%r9b 
+    jb .lowerThan91 # if its lower than 91 means its big word
+    inc %r14 # i = i+1
+    jmp .mainLoopswapCase # got to main loop again
+    
+.lowerThan91:
+    add $32, %r9b
+    mov %r9b, (%rsi,%r14,1)
+    inc %r14 # i = i+1
+    jmp .mainLoopswapCase # got to main loop again
+    
+    
+    
+    
 
 .case55:
     mov -1(%r13), %rdi
