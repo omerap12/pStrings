@@ -14,6 +14,7 @@ case52_secondstring:    .string "second string: %s\n"
 case53_invalid_input:   .string "invalid input!\n"
 case53_print_length:    .string "length: %d, "
 case53_print_string:    .string "string: %s\n"
+case55_print_result:    .string "compare result: %d\n"
 
 
 .text
@@ -391,16 +392,69 @@ swapCase:
     mov %r9b, (%rsi,%r14,1)
     inc %r14 # i = i+1
     jmp .mainLoopswapCase # got to main loop again
-    
-    
-    
-    
+     
 
 .case55:
-    mov -1(%r13), %rdi
-    mov -1(%r12), %rsi
+    push %rbp
+    mov %rsp, %rbp
+    sub $16, %rsp 
+    push %r14 # for start index
+    push %r15 # for stop index
+    
+   # getting the start index
+    leaq -8(%rbp), %rsi # allocating memory for the start int
+    xor %rax, %rax
+    movq $format_for_int, %rdi # first argument for scanf
+    call scanf
+    movzbq -8(%rbp), %r14 # save the start int r14
+    
+    # getting the stop index char
+    leaq -16(%rbp), %rsi # allocating memory for the char
+    xor %rax, %rax
+    movq $format_for_int, %rdi # first argument for scanf
+    call scanf
+    movzbq -16(%rbp), %r15 # save the stop index %r14
+    #checking if input is valid
+    xor %rax,%rax
+    leaq -1(%r13), %rdi
+    call pstrlen # getting the length of the first string
+    cmpb %al, %r14b # if start index is bigger than string.length
+    ja .invalidInput
+    
+    xor %rax, %rax
+    leaq -1(%r12), %rdi # pointer to second string
+    call pstrlen # getting the length of the second string
+    cmpb %al, %r15b # if start index is bigger than string.length
+    ja .invalidInput
+    
+    #moving parametrs to psrijcpy
+    xor %rax, %rax
+    xor %rdx, %rdx
+    xor %rcx, %rcx
+    
+    mov %r13, %rdi # moving second string to rdi
+    mov %r12, %rsi # moving first string to rsi
+    mov %r14, %rdx # moving i index to rdx
+    mov %r15, %rcx # moving j index to rcx
+    
+    call pstrijcmp
+    
+    #print result
+    mov %rax, %rsi # print the result of the function
+    mov $case55_print_result, %rdi
     xor %rax, %rax
     call printf
+    
+     # free memory
+    pop %r15
+    pop %r14
+    addq $16, %rsp
+    mov %rsp, %rbp
+    pop %rbp
+    ret
+    
+    ret
+     
 
 .error:
     mov $error, %rdi
@@ -457,4 +511,33 @@ psrijcpy:
     movb %r10b, (%rdi,%rdx,1) #put dest[i] = src[i]
     inc %rdx # i = i+1
     jmp .mainLoop
+
+pstrijcmp:
+    # first pstring in %rsi
+    # second pstring in %rdi
+    # i in rdx
+    # j in rcx
     
+    inc %rcx # to include last byte
+    #main loop
+.mainLooppstrijcmp:
+    cmp %rdx, %rcx
+    jne .inLooppstrijcmp
+    movq $0, %rax # strings are identical
+    ret
+    
+.inLooppstrijcmp:
+    xor %r9, %r9 # for comparing reasons
+    movb (%rdi,%rdx,1), %r9b
+    cmpb (%rsi,%rdx,1),%r9b
+    ja .psrt2IsBigger
+    jb .pstr1IsBigger
+    inc %rdx # i = i+1
+    jmp .mainLooppstrijcmp
+
+.psrt2IsBigger:
+    movq $-1, %rax
+    ret
+.pstr1IsBigger:
+    movq $1, %rax
+    ret
