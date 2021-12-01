@@ -217,19 +217,22 @@ run_func:
     
     xor %rax, %rax
     leaq -1(%r12), %rdi # pointer to second string
-    call pstrlen # getting the length of the first string
+    call pstrlen # getting the length of the second string
     cmpb %al, %r15b # if start index is bigger than string.length
     ja .invalidInput
-    
-    
-
-    ret
-
-.invalidInput:
-    
+    #moving parametrs to psrijcpy
     xor %rax, %rax
-    mov $case53_invalid_input ,%rdi
-    call printf
+    xor %rdx, %rdx
+    xor %rcx, %rcx
+    
+    mov %r13, %rdi # moving second string to rdi
+    mov %r12, %rsi # moving first string to rsi
+    mov %r14, %rdx # moving i index to rdx
+    mov %r15, %rcx # moving j index to rcx
+    
+    
+    call psrijcpy
+    
     # free memory
     pop %r15
     pop %r14
@@ -237,23 +240,14 @@ run_func:
     mov %rsp, %rbp
     pop %rbp
     ret
-   
     
-    #moving parametrs to psrijcpy
+
+
+.invalidInput:
+    
     xor %rax, %rax
-    xor %rdx, %rdx
-    xor %rcx, %rcx
-    
-    
-    
-    mov %r13, %rsi # moving first string to rsi
-    mov %r12, %rdi # moving second string to rdi
-    mov %r14, %rdx # moving i index to rdx
-    mov %r15, %rcx # moving j index to rcx
-    
-    
-    call psrijcpy
-    
+    mov $case53_invalid_input ,%rdi
+    call printf
     # free memory
     pop %r15
     pop %r14
@@ -319,9 +313,20 @@ psrijcpy:
     # pstring src in rdi
     # char i in rdx
     # char j in rcx
-    
-    
+    xor %r10, %r10
+    inc %rcx # because we need to include last byte
+    # main loop
+.mainLoop:
+    cmp %rdx, %rcx
+    jne .inLoop
+    mov %rsi, %rax # return the pointer to dest
     ret
+
+.inLoop:
+    movb (%rsi, %rdx, 1), %r10b #get the src[i]
+    movb %r10b, (%rdi,%rdx,1) #put dest[i] = src[i]
+    inc %rdx # i = i+1
+    jmp .mainLoop
     
     
     
