@@ -153,8 +153,21 @@ run_func:
     #printing the new char
     xor %rax, %rax
     mov $case52_newchar, %rdi
-    movb %r14b, %sil
+    movb %r15b, %sil
     call printf
+    
+    #printing the first string
+    xor %rax, %rax
+    mov $case52_firststring, %rdi
+    mov %r13, %rsi
+    call printf
+    
+    #printing the second string
+    xor %rax, %rax
+    mov $case52_secondstring, %rdi
+    mov %r12, %rsi
+    call printf
+    
     
     # free memory
     pop %r15
