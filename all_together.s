@@ -11,6 +11,7 @@ case52_oldchar: .string "old char: %c,"
 case52_newchar: .string "new char: %c,"
 case52_firststring: .string "first string: %s,"
 case52_secondstring:    .string "second string: %s\n"
+case53_invalid_input:   .string "invalid input!\n"
 
 
 .text
@@ -193,29 +194,56 @@ run_func:
     push %r14 # for start index
     push %r15 # for stop index
     
-    # getting start index
+   # getting the old char
     leaq -8(%rbp), %rsi # allocating memory for the char
     xor %rax, %rax
-    movq $format_for_string, %rdi # first argument for scanf
+    movq $format_for_int, %rdi # first argument for scanf
     call scanf
-    movzbq -8(%rbp), %r14 # save the start index %r14
+    movzbq -8(%rbp), %r14 # save the old char in r14
     
     # getting the stop index char
     leaq -16(%rbp), %rsi # allocating memory for the char
     xor %rax, %rax
-    movq $format_for_string, %rdi # first argument for scanf
+    movq $format_for_int, %rdi # first argument for scanf
     call scanf
     movzbq -16(%rbp), %r15 # save the stop index %r14
+    
+    #checking if input is valid
+    xor %rax,%rax
+    leaq -1(%r13), %rdi
+    
+    call pstrlen # getting the length of the first string
+    cmpb %al, %r14b # if start index is bigger than string.length
+    
+    ja .invalidInput
+    ret
+
+.invalidInput:
+    
+    xor %rax, %rax
+    mov $case53_invalid_input ,%rdi
+    call printf
+    # free memory
+    pop %r15
+    pop %r14
+    addq $16, %rsp
+    mov %rsp, %rbp
+    pop %rbp
+    ret
+   
     
     #moving parametrs to psrijcpy
     xor %rax, %rax
     xor %rdx, %rdx
     xor %rcx, %rcx
     
+    
+    
     mov %r13, %rsi # moving first string to rsi
     mov %r12, %rdi # moving second string to rdi
     mov %r14, %rdx # moving i index to rdx
     mov %r15, %rcx # moving j index to rcx
+    
     
     call psrijcpy
     
@@ -284,4 +312,9 @@ psrijcpy:
     # pstring src in rdi
     # char i in rdx
     # char j in rcx
+    
+    
     ret
+    
+    
+    
