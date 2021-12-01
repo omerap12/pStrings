@@ -141,19 +141,83 @@ run_func:
     mov %r13, %rsi # first argument (*pstring)
     mov %r14, %rdi # second argument (char oldChar)
     mov %r15, %rdx # third argument (char newChar)
-    xor rax,rax
+    xor %rax,%rax
     call replaceChar
-    mov %rax, %r13 # save the output in r13
+    
+    #call replaceChar for string 2
+    mov %r12, %rsi # first argument (*pstring)
+    mov %r14, %rdi # second argument (char oldChar)
+    mov %r15, %rdx # third argument (char newChar)
+    xor %rax,%rax
+    call replaceChar
+    
+    # printing old char
+    xor %rax, %rax
+    mov $case52_oldchar, %rdi
+    movb %r14b, %sil
+    call printf
+    
+    #printing the new char
+    xor %rax, %rax
+    mov $case52_newchar, %rdi
+    movb %r15b, %sil
+    call printf
+    
+    #printing the first string
+    xor %rax, %rax
+    mov $case52_firststring, %rdi
+    mov %r13, %rsi
+    call printf
+    
+    #printing the second string
+    xor %rax, %rax
+    mov $case52_secondstring, %rdi
+    mov %r12, %rsi
+    call printf
     
     
+    # free memory
+    pop %r15
+    pop %r14
+    addq $16, %rsp
+    mov %rsp, %rbp
+    pop %rbp
+    ret
     
     
     
 .case53:
-    mov -1(%r13), %rdi
-    mov -1(%r12), %rsi
+    push %rbp
+    mov %rsp, %rbp
+    sub $16, %rsp 
+    push %r14 # for start index
+    push %r15 # for stop index
+    
+    # getting start index
+    leaq -8(%rbp), %rsi # allocating memory for the char
     xor %rax, %rax
-    call printf
+    movq $format_for_string, %rdi # first argument for scanf
+    call scanf
+    movzbq -8(%rbp), %r14 # save the start index %r14
+    
+    # getting the stop index char
+    leaq -16(%rbp), %rsi # allocating memory for the char
+    xor %rax, %rax
+    movq $format_for_string, %rdi # first argument for scanf
+    call scanf
+    movzbq -16(%rbp), %r15 # save the start index %r14
+    
+    # free memory
+    pop %r15
+    pop %r14
+    addq $16, %rsp
+    mov %rsp, %rbp
+    pop %rbp
+    ret
+    
+    
+    
+    
 
 .case54:
     mov -1(%r13), %rdi
@@ -181,16 +245,25 @@ replaceChar:
     # string in rsi
     # old char in rdi
     # new char in rdx
-    xor %r9, %r9 # r9 as counter
-    movzbq %rsi, %r10 # put the length of the string in r10
-.loopCheck
-    cmp %r9, %r10 # check if i == pstring length
-    jne .inLoop # if not means i< pstring length so jump to inLoop
+    
+    xor %r8, %r8 # counter in r8
+    movq %rsi, %r9 # copy rsi to r9 for getting the length
+    decq %r9 # getting pointer to the first pstring -> length
+    
+    # start loop
+.firstLoop:
+    cmp %r8b,(%r9)
+    jne .firstCondition
     ret
-.inLoop
-    
-    
-    
-    
-    
+
+.firstCondition:
+    cmpb (%rsi,%r8,1), %dil # compart %rsi+%r8 to %rdi (pstring[i] to oldchar)
+    je .switchChar
+    inc %r8 # counter+=1 
+    jmp .firstLoop
+
+.switchChar:
+    mov %dl, (%rsi,%r8,1) # replace the char
+    inc %r8 # counter+=1 
+    jmp .firstLoop
     
