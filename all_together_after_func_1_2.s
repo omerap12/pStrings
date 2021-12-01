@@ -144,6 +144,13 @@ run_func:
     xor %rax,%rax
     call replaceChar
     
+    #call replaceChar for string 2
+    mov %r12, %rsi # first argument (*pstring)
+    mov %r14, %rdi # second argument (char oldChar)
+    mov %r15, %rdx # third argument (char newChar)
+    xor %rax,%rax
+    call replaceChar
+    
     # printing old char
     xor %rax, %rax
     mov $case52_oldchar, %rdi
