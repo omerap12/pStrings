@@ -12,6 +12,8 @@ case52_newchar: .string "new char: %c,"
 case52_firststring: .string "first string: %s,"
 case52_secondstring:    .string "second string: %s\n"
 case53_invalid_input:   .string "invalid input!\n"
+case53_print_length:    .string "length: %d, "
+case53_print_string:    .string "string: %s\n"
 
 
 .text
@@ -232,6 +234,37 @@ run_func:
     
     
     call psrijcpy
+    # printing the dest length 
+    xor %rax,%rax
+    leaq -1(%r13), %rdi
+    call pstrlen # getting the length of the first string
+    mov %rax, %rsi # put length of string into rsi
+    xor %rax,%rax
+    movq $case53_print_length, %rdi
+    call printf
+    
+    # printing dest string
+    xor %rax, %rax
+    movq $case53_print_string, %rdi 
+    mov %r13, %rsi
+    call printf
+    
+    # printing the dest length 
+    xor %rax,%rax
+    leaq -1(%r12), %rdi
+    call pstrlen # getting the length of the first string
+    mov %rax, %rsi # put length of string into rsi
+    xor %rax,%rax
+    movq $case53_print_length, %rdi
+    call printf
+    
+    # printing dest string
+    xor %rax, %rax
+    movq $case53_print_string, %rdi 
+    mov %r12, %rsi
+    call printf
+    
+    
     
     # free memory
     pop %r15
@@ -309,8 +342,8 @@ replaceChar:
     jmp .firstLoop
 
 psrijcpy: 
-    # pstring dst in rsi
-    # pstring src in rdi
+    # pstring dst in rdi
+    # pstring src in rsi
     # char i in rdx
     # char j in rcx
     xor %r10, %r10
@@ -319,7 +352,7 @@ psrijcpy:
 .mainLoop:
     cmp %rdx, %rcx
     jne .inLoop
-    mov %rsi, %rax # return the pointer to dest
+    mov %rdi, %rax # return the pointer to dest
     ret
 
 .inLoop:
