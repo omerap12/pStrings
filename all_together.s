@@ -234,6 +234,7 @@ run_func:
     
     
     call psrijcpy
+    
     # printing the dest length 
     xor %rax,%rax
     leaq -1(%r13), %rdi
@@ -295,6 +296,36 @@ run_func:
     call swapCase
     mov %r12, %rsi
     call swapCase
+    
+    # printing the dest length 
+    xor %rax,%rax
+    leaq -1(%r13), %rdi
+    call pstrlen # getting the length of the first string
+    mov %rax, %rsi # put length of string into rsi
+    xor %rax,%rax
+    movq $case53_print_length, %rdi
+    call printf
+    
+    # printing dest string
+    xor %rax, %rax
+    movq $case53_print_string, %rdi 
+    mov %r13, %rsi
+    call printf
+    
+    # printing the dest length 
+    xor %rax,%rax
+    leaq -1(%r12), %rdi
+    call pstrlen # getting the length of the first string
+    mov %rax, %rsi # put length of string into rsi
+    xor %rax,%rax
+    movq $case53_print_length, %rdi
+    call printf
+    
+    # printing dest string
+    xor %rax, %rax
+    movq $case53_print_string, %rdi 
+    mov %r12, %rsi
+    call printf
     
     
     ret
@@ -426,6 +457,4 @@ psrijcpy:
     movb %r10b, (%rdi,%rdx,1) #put dest[i] = src[i]
     inc %rdx # i = i+1
     jmp .mainLoop
-    
-    
     
