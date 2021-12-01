@@ -194,12 +194,12 @@ run_func:
     push %r14 # for start index
     push %r15 # for stop index
     
-   # getting the old char
-    leaq -8(%rbp), %rsi # allocating memory for the char
+   # getting the start index
+    leaq -8(%rbp), %rsi # allocating memory for the start int
     xor %rax, %rax
     movq $format_for_int, %rdi # first argument for scanf
     call scanf
-    movzbq -8(%rbp), %r14 # save the old char in r14
+    movzbq -8(%rbp), %r14 # save the start int r14
     
     # getting the stop index char
     leaq -16(%rbp), %rsi # allocating memory for the char
@@ -211,11 +211,18 @@ run_func:
     #checking if input is valid
     xor %rax,%rax
     leaq -1(%r13), %rdi
-    
     call pstrlen # getting the length of the first string
     cmpb %al, %r14b # if start index is bigger than string.length
-    
     ja .invalidInput
+    
+    xor %rax, %rax
+    leaq -1(%r12), %rdi # pointer to second string
+    call pstrlen # getting the length of the first string
+    cmpb %al, %r15b # if start index is bigger than string.length
+    ja .invalidInput
+    
+    
+
     ret
 
 .invalidInput:
