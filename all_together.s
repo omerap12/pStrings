@@ -205,7 +205,19 @@ run_func:
     xor %rax, %rax
     movq $format_for_string, %rdi # first argument for scanf
     call scanf
-    movzbq -16(%rbp), %r15 # save the start index %r14
+    movzbq -16(%rbp), %r15 # save the stop index %r14
+    
+    #moving parametrs to psrijcpy
+    xor %rax, %rax
+    xor %rdx, %rdx
+    xor %rcx, %rcx
+    
+    mov %r13, %rsi # moving first string to rsi
+    mov %r12, %rdi # moving second string to rdi
+    mov %r14, %rdx # moving i index to rdx
+    mov %r15, %rcx # moving j index to rcx
+    
+    call psrijcpy
     
     # free memory
     pop %r15
@@ -266,4 +278,10 @@ replaceChar:
     mov %dl, (%rsi,%r8,1) # replace the char
     inc %r8 # counter+=1 
     jmp .firstLoop
-    
+
+psrijcpy: 
+    # pstring dst in rsi
+    # pstring src in rdi
+    # char i in rdx
+    # char j in rcx
+    ret
