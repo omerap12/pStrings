@@ -145,6 +145,16 @@ run_func:
     call replaceChar
     
     # printing old char
+    xor %rax, %rax
+    mov $case52_oldchar, %rdi
+    movb %r14b, %sil
+    call printf
+    
+    #printing the new char
+    xor %rax, %rax
+    mov $case52_newchar, %rdi
+    movb %r14b, %sil
+    call printf
     
     # free memory
     pop %r15
