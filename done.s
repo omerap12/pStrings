@@ -233,7 +233,6 @@ run_func:
     mov %r14, %rdx # moving i index to rdx
     mov %r15, %rcx # moving j index to rcx
     
-    
     call psrijcpy
     
     # printing the dest length 
@@ -437,6 +436,8 @@ swapCase:
     xor %rax, %rax
     mov $case53_invalid_input ,%rdi
     call printf
+    mov %r15, %rax # return rax as usual
+    jmp .printResult55
        
     
     #print result
@@ -523,16 +524,17 @@ pstrijcmp:
     
     # check valid indexes
     xor %rax, %rax
-    
-    movq %rdi, %r10 # backup rdi
+    mov %rdi, %r10 # backup rdi
+    leaq -1(%r10), %rdi
     call pstrlen
     cmp %rax, %rdx # if start index is bigger than all length
     ja .errorPst
     cmp %rax, %rcx # if stop index is bigger than all length
     ja .errorPst
     
+    xor %rax, %rax
     mov %rsi, %r9
-    movq %rsi, %rdi
+    leaq -1(%rsi), %rdi
     call pstrlen
     cmp %rax, %rdx # if start index is bigger than all length
     ja .errorPst
