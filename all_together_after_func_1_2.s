@@ -5,12 +5,16 @@ format_for_int: .string "%d"
 format_for_string: .string "%s"
 end_character:    .string "\0"
 case_50_60: .string "first pstring length: %d, second pstring length: %d\n"
-error:  .string "Invalid option!\n"
+error:  .string "invalid option!\n"
 format_for_char:    .string "%c"
 case52_oldchar: .string "old char: %c,"
 case52_newchar: .string "new char: %c,"
 case52_firststring: .string "first string: %s,"
 case52_secondstring:    .string "second string: %s\n"
+case53_invalid_input:   .string "invalid input!\n"
+case53_print_length:    .string "length: %d, "
+case53_print_string:    .string "string: %s\n"
+case55_print_result:    .string "compare result: %d\n"
 
 
 .text
@@ -187,22 +191,272 @@ run_func:
     
     
 .case53:
-    mov -1(%r13), %rdi
-    mov -1(%r12), %rsi
+    push %rbp
+    mov %rsp, %rbp
+    sub $16, %rsp 
+    push %r14 # for start index
+    push %r15 # for stop index
+    
+   # getting the start index
+    leaq -8(%rbp), %rsi # allocating memory for the start int
     xor %rax, %rax
+    movq $format_for_int, %rdi # first argument for scanf
+    call scanf
+    movzbq -8(%rbp), %r14 # save the start int r14
+    
+    # getting the stop index char
+    leaq -16(%rbp), %rsi # allocating memory for the char
+    xor %rax, %rax
+    movq $format_for_int, %rdi # first argument for scanf
+    call scanf
+    movzbq -16(%rbp), %r15 # save the stop index %r14
+    
+    #checking if input is valid
+    xor %rax,%rax
+    leaq -1(%r13), %rdi
+    call pstrlen # getting the length of the first string
+    cmpb %al, %r14b # if start index is bigger than string.length
+    ja .invalidInput
+    
+    xor %rax, %rax
+    leaq -1(%r12), %rdi # pointer to second string
+    call pstrlen # getting the length of the second string
+    cmpb %al, %r15b # if start index is bigger than string.length
+    ja .invalidInput
+    #moving parametrs to psrijcpy
+    xor %rax, %rax
+    xor %rdx, %rdx
+    xor %rcx, %rcx
+    
+    mov %r13, %rdi # moving second string to rdi
+    mov %r12, %rsi # moving first string to rsi
+    mov %r14, %rdx # moving i index to rdx
+    mov %r15, %rcx # moving j index to rcx
+    
+    
+    call psrijcpy
+    
+    # printing the dest length 
+    xor %rax,%rax
+    leaq -1(%r13), %rdi
+    call pstrlen # getting the length of the first string
+    mov %rax, %rsi # put length of string into rsi
+    xor %rax,%rax
+    movq $case53_print_length, %rdi
     call printf
+    
+    # printing dest string
+    xor %rax, %rax
+    movq $case53_print_string, %rdi 
+    mov %r13, %rsi
+    call printf
+    
+    # printing the dest length 
+    xor %rax,%rax
+    leaq -1(%r12), %rdi
+    call pstrlen # getting the length of the first string
+    mov %rax, %rsi # put length of string into rsi
+    xor %rax,%rax
+    movq $case53_print_length, %rdi
+    call printf
+    
+    # printing dest string
+    xor %rax, %rax
+    movq $case53_print_string, %rdi 
+    mov %r12, %rsi
+    call printf
+    
+    
+    
+    # free memory
+    pop %r15
+    pop %r14
+    addq $16, %rsp
+    mov %rsp, %rbp
+    pop %rbp
+    ret
+    
+
+
+.invalidInput:
+    
+    xor %rax, %rax
+    mov $case53_invalid_input ,%rdi
+    call printf
+    # free memory
+    pop %r15
+    pop %r14
+    addq $16, %rsp
+    mov %rsp, %rbp
+    pop %rbp
+    ret
 
 .case54:
-    mov -1(%r13), %rdi
-    mov -1(%r12), %rsi
-    xor %rax, %rax
+    
+    mov %r13, %rsi
+    call swapCase
+    mov %r12, %rsi
+    call swapCase
+    
+    # printing the dest length 
+    xor %rax,%rax
+    leaq -1(%r13), %rdi
+    call pstrlen # getting the length of the first string
+    mov %rax, %rsi # put length of string into rsi
+    xor %rax,%rax
+    movq $case53_print_length, %rdi
     call printf
+    
+    # printing dest string
+    xor %rax, %rax
+    movq $case53_print_string, %rdi 
+    mov %r13, %rsi
+    call printf
+    
+    # printing the dest length 
+    xor %rax,%rax
+    leaq -1(%r12), %rdi
+    call pstrlen # getting the length of the first string
+    mov %rax, %rsi # put length of string into rsi
+    xor %rax,%rax
+    movq $case53_print_length, %rdi
+    call printf
+    
+    # printing dest string
+    xor %rax, %rax
+    movq $case53_print_string, %rdi 
+    mov %r12, %rsi
+    call printf
+    
+    
+    ret
+    
+swapCase:
+    # string in rsi
+    # getting the length of the first pstring
+    leaq -1(%rsi), %rdi # argument for pstrlen
+    call pstrlen
+    mov %rax, %r15 # getting the length to %r15
+    xor %r14, %r14 # %r14 as counter (i)
+    
+   
+    
+    
+    #main loop
+.mainLoopswapCase:
+    cmp %r14, %r15 # if i == pstringLength
+    jne .inMainLoopswapCase
+    ret
+    
+    
+.inMainLoopswapCase:
+    xor %r9, %r9 
+    movb (%rsi,%r14,1), %r9b # saving char in %r9b
+    
+    #checking if it's small word
+    # check if its bigger then 96
+    movb $96, %r8b #for comparing reasons
+    cmpb %r8b,%r9b 
+    ja .biggerThan96 # if its bigger than 96 maybe its small word
+    movb $64, %r8b #for comparing reasons
+    cmp %r8b,%r9b 
+    ja .biggerThan64 # if its bigger than 64 maybe its big word
+    inc %r14
+    jmp .mainLoopswapCase
+    
+
+
+.biggerThan96:
+    movb $123, %r8b #for comparing reasons
+    cmp %r8b,%r9b 
+    jb .lowerThan123 # if its lower than 123 means its small word
+    inc %r14 # i = i+1
+    jmp .mainLoopswapCase # got to main loop again
+    
+
+.lowerThan123:
+    sub $32, %r9b
+    mov %r9b, (%rsi, %r14, 1)
+    inc %r14 # i = i+1
+    jmp .mainLoopswapCase # got to main loop again
+    
+.biggerThan64:
+    movb $91, %r8b #for comparing reasons
+    cmp %r8b,%r9b 
+    jb .lowerThan91 # if its lower than 91 means its big word
+    inc %r14 # i = i+1
+    jmp .mainLoopswapCase # got to main loop again
+    
+.lowerThan91:
+    add $32, %r9b
+    mov %r9b, (%rsi,%r14,1)
+    inc %r14 # i = i+1
+    jmp .mainLoopswapCase # got to main loop again
+     
 
 .case55:
-    mov -1(%r13), %rdi
-    mov -1(%r12), %rsi
+    push %rbp
+    mov %rsp, %rbp
+    sub $16, %rsp 
+    push %r14 # for start index
+    push %r15 # for stop index
+    
+   # getting the start index
+    leaq -8(%rbp), %rsi # allocating memory for the start int
+    xor %rax, %rax
+    movq $format_for_int, %rdi # first argument for scanf
+    call scanf
+    movzbq -8(%rbp), %r14 # save the start int r14
+    
+    # getting the stop index char
+    leaq -16(%rbp), %rsi # allocating memory for the char
+    xor %rax, %rax
+    movq $format_for_int, %rdi # first argument for scanf
+    call scanf
+    movzbq -16(%rbp), %r15 # save the stop index %r14
+    
+    
+    #moving parametrs to psrijcpy
+    xor %rax, %rax
+    xor %rdx, %rdx
+    xor %rcx, %rcx
+    
+    mov %r13, %rdi # moving second string to rdi
+    mov %r12, %rsi # moving first string to rsi
+    mov %r14, %rdx # moving i index to rdx
+    mov %r15, %rcx # moving j index to rcx
+    
+    call pstrijcmp
+    
+    #checking if result is -2, than print error first
+    cmp $-2, %rax
+    jne .printResult55
+    
+.printErrorFirstCase55:
+    movq %rax, %r15 # backup rax
+    xor %rax, %rax
+    mov $case53_invalid_input ,%rdi
+    call printf
+       
+    
+    #print result
+.printResult55:
+    mov %r15, %rsi # print the result of the function
+    mov $case55_print_result, %rdi
     xor %rax, %rax
     call printf
+    jmp .freeMemory
+    
+     # free memory
+.freeMemory:
+    pop %r15
+    pop %r14
+    addq $16, %rsp
+    mov %rsp, %rbp
+    pop %rbp
+    ret
+    
+     
 
 .error:
     mov $error, %rdi
@@ -239,4 +493,68 @@ replaceChar:
     mov %dl, (%rsi,%r8,1) # replace the char
     inc %r8 # counter+=1 
     jmp .firstLoop
+
+psrijcpy: 
+    # pstring dst in rdi
+    # pstring src in rsi
+    # char i in rdx
+    # char j in rcx
+    xor %r10, %r10
+    inc %rcx # because we need to include last byte
+    # main loop
+.mainLoop:
+    cmp %rdx, %rcx
+    jne .inLoop
+    mov %rdi, %rax # return the pointer to dest
+    ret
+
+.inLoop:
+    movb (%rsi, %rdx, 1), %r10b #get the src[i]
+    movb %r10b, (%rdi,%rdx,1) #put dest[i] = src[i]
+    inc %rdx # i = i+1
+    jmp .mainLoop
+
+pstrijcmp:
+    # first pstring in %rsi
+    # second pstring in %rdi
+    # i in rdx
+    # j in rcx
     
+    #checking if valid indexes
+    xor %rax,%rax
+    leaq -1(%r13), %rdi
+    call pstrlen # getting the length of the first string
+    cmpb %al, %r14b # if start index is bigger than string.length
+    movq $-2, %rax
+    ret
+        
+    xor %rax, %rax
+    leaq -1(%r12), %rdi # pointer to second string
+    call pstrlen # getting the length of the second string
+    cmpb %al, %r15b # if start index is bigger than string.length
+    movq $-2, %rax
+    ret
+    
+    inc %rcx # to include last byte
+    #main loop
+.mainLooppstrijcmp:
+    cmp %rdx, %rcx
+    jne .inLooppstrijcmp
+    movq $0, %rax # strings are identical
+    ret
+    
+.inLooppstrijcmp:
+    xor %r9, %r9 # for comparing reasons
+    movb (%rdi,%rdx,1), %r9b
+    cmpb (%rsi,%rdx,1),%r9b
+    ja .psrt2IsBigger
+    jb .pstr1IsBigger
+    inc %rdx # i = i+1
+    jmp .mainLooppstrijcmp
+
+.psrt2IsBigger:
+    movq $-1, %rax
+    ret
+.pstr1IsBigger:
+    movq $1, %rax
+    ret
