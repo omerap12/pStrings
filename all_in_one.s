@@ -82,7 +82,6 @@ main:
     
     ret
 
-
 run_func:
     leaq -60(%rdi), %rsi # compute x = x-60
     cmpq $0, %rsi # compare x == 0
