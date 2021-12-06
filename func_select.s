@@ -1,3 +1,4 @@
+    # 209493667 Omer Aplatony
 .data
 
   .section  .rodata
@@ -17,6 +18,14 @@ case53_print_string:    .string "string: %s\n"
 case55_print_result:    .string "compare result: %d\n"
 
 
+.start_jmptbl:
+  .quad .case50_60
+  .quad .case52
+  .quad .case53
+  .quad .case54
+  .quad .case55
+  .quad .error
+
 
     .text
   .globl run_func
@@ -29,6 +38,8 @@ run_func:
     leaq -50(%rdi), %rsi # compute x = x - 60
     cmpq $0, %rsi # compare x == 0
     je .case50_60
+    cmpq  $1, %rsi # if %r12 =1 %rdi = 51 -> invalid_case
+    je    .error
     cmpq $2, %rsi # compare x == 2
     je .case52
     cmpq $3, %rsi # compare x == 0
@@ -37,18 +48,22 @@ run_func:
     je .case54
     cmpq $5, %rsi # compare x == 0    
     je .case55
-    jmp .error
+    ja    .error
+    jmp   *.start_jmptbl(,%rsi,8) # else, x < 6 go to the right case using start_jmptbl addres
+
+
+
     
 
 .case50_60:
     leaq -1(%r13), %rdi # for the first string
     xor %rax, %rax
     call pstrlen 
-    mov %rax, %r11 # saving the length of the first string
+    mov %rax, %r11  # saving the length of the first string
     xor %rax, %rax
     leaq -1(%r12), %rdi # for the second pstring
     call pstrlen
-    mov %rax, %r10 # saving the length
+    mov %rax, %r10  # saving the length
     mov $case_50_60, %rdi
     mov %r11, %rsi
     mov %r10, %rdx
@@ -62,34 +77,34 @@ run_func:
     push %rbp
     mov %rsp, %rbp
     sub $16, %rsp 
-    push %r14 # for the old char
-    push %r15 # for the new char
+    push %r14   # for the old char
+    push %r15   # for the new char
     
     # getting the old char
     leaq -8(%rbp), %rsi # allocating memory for the char
     xor %rax, %rax
-    movq $format_for_string, %rdi # first argument for scanf
+    movq $format_for_string, %rdi   # first argument for scanf
     call scanf
-    movzbq -8(%rbp), %r14 # save the old char in r14
+    movzbq -8(%rbp), %r14   # save the old char in r14
     
     # getting the new char
-    leaq -16(%rbp), %rsi # allocating memory for the char
+    leaq -16(%rbp), %rsi    # allocating memory for the char
     xor %rax, %rax
-    movq $format_for_string, %rdi # first argument for scanf
+    movq $format_for_string, %rdi   # first argument for scanf
     call scanf
-    movzbq -16(%rbp), %r15 # save the old char in r14
+    movzbq -16(%rbp), %r15  # save the old char in r14
     
     # call replaceChar for string 1
-    mov %r13, %rsi # first argument (*pstring)
-    mov %r14, %rdi # second argument (char oldChar)
-    mov %r15, %rdx # third argument (char newChar)
+    mov %r13, %rsi  # first argument (*pstring)
+    mov %r14, %rdi  # second argument (char oldChar)
+    mov %r15, %rdx  # third argument (char newChar)
     xor %rax,%rax
     call replaceChar
     
     #call replaceChar for string 2
-    mov %r12, %rsi # first argument (*pstring)
-    mov %r14, %rdi # second argument (char oldChar)
-    mov %r15, %rdx # third argument (char newChar)
+    mov %r12, %rsi  # first argument (*pstring)
+    mov %r14, %rdi  # second argument (char oldChar)
+    mov %r15, %rdx  # third argument (char newChar)
     xor %rax,%rax
     call replaceChar
     
@@ -132,22 +147,22 @@ run_func:
     push %rbp
     mov %rsp, %rbp
     sub $16, %rsp 
-    push %r14 # for start index
-    push %r15 # for stop index
+    push %r14   # for start index
+    push %r15   # for stop index
     
    # getting the start index
     leaq -8(%rbp), %rsi # allocating memory for the start int
     xor %rax, %rax
-    movq $format_for_int, %rdi # first argument for scanf
+    movq $format_for_int, %rdi  # first argument for scanf
     call scanf
-    movzbq -8(%rbp), %r14 # save the start int r14
+    movzbq -8(%rbp), %r14   # save the start int r14
     
     # getting the stop index char
-    leaq -16(%rbp), %rsi # allocating memory for the char
+    leaq -16(%rbp), %rsi    # allocating memory for the char
     xor %rax, %rax
-    movq $format_for_int, %rdi # first argument for scanf
+    movq $format_for_int, %rdi  # first argument for scanf
     call scanf
-    movzbq -16(%rbp), %r15 # save the stop index %r14
+    movzbq -16(%rbp), %r15  # save the stop index %r14
     
     
     #moving parametrs to psrijcpy
@@ -155,10 +170,10 @@ run_func:
     xor %rdx, %rdx
     xor %rcx, %rcx
     
-    mov %r13, %rsi # moving second string to rdi
-    mov %r12, %rdi # moving first string to rsi
-    mov %r14, %rdx # moving i index to rdx
-    mov %r15, %rcx # moving j index to rcx
+    mov %r13, %rsi  # moving second string to rdi
+    mov %r12, %rdi  # moving first string to rsi
+    mov %r14, %rdx  # moving i index to rdx
+    mov %r15, %rcx  # moving j index to rcx
     
     call pstrijcpy
     
@@ -170,8 +185,8 @@ run_func:
 .regular: 
     xor %rax,%rax
     leaq -1(%r13), %rdi
-    call pstrlen # getting the length of the first string
-    mov %rax, %rsi # put length of string into rsi
+    call pstrlen    # getting the length of the first string
+    mov %rax, %rsi  # put length of string into rsi
     xor %rax,%rax
     movq $case53_print_length, %rdi
     call printf
@@ -185,8 +200,8 @@ run_func:
     # printing the dest length 
     xor %rax,%rax
     leaq -1(%r12), %rdi
-    call pstrlen # getting the length of the first string
-    mov %rax, %rsi # put length of string into rsi
+    call pstrlen    # getting the length of the first string
+    mov %rax, %rsi  # put length of string into rsi
     xor %rax,%rax
     movq $case53_print_length, %rdi
     call printf
@@ -196,6 +211,8 @@ run_func:
     movq $case53_print_string, %rdi 
     mov %r12, %rsi
     call printf
+
+    # free memory
     pop %r15
     pop %r14
     addq $16, %rsp
@@ -210,10 +227,10 @@ run_func:
     jmp .regular
 
 .invalidInput:
-    
     xor %rax, %rax
     mov $case53_invalid_input ,%rdi
     call printf
+    
     # free memory
     pop %r15
     pop %r14
@@ -223,7 +240,6 @@ run_func:
     ret
 
 .case54:
-    
     mov %r13, %rsi
     call swapCase
     mov %r12, %rsi
@@ -232,8 +248,8 @@ run_func:
     # printing the dest length 
     xor %rax,%rax
     leaq -1(%r13), %rdi
-    call pstrlen # getting the length of the first string
-    mov %rax, %rsi # put length of string into rsi
+    call pstrlen    # getting the length of the first string
+    mov %rax, %rsi  # put length of string into rsi
     xor %rax,%rax
     movq $case53_print_length, %rdi
     call printf
@@ -247,8 +263,8 @@ run_func:
     # printing the dest length 
     xor %rax,%rax
     leaq -1(%r12), %rdi
-    call pstrlen # getting the length of the first string
-    mov %rax, %rsi # put length of string into rsi
+    call pstrlen    # getting the length of the first string
+    mov %rax, %rsi  # put length of string into rsi
     xor %rax,%rax
     movq $case53_print_length, %rdi
     call printf
@@ -264,22 +280,22 @@ run_func:
     push %rbp
     mov %rsp, %rbp
     sub $16, %rsp 
-    push %r14 # for start index
-    push %r15 # for stop index
+    push %r14   # for start index
+    push %r15   # for stop index
     
    # getting the start index
     leaq -8(%rbp), %rsi # allocating memory for the start int
     xor %rax, %rax
-    movq $format_for_int, %rdi # first argument for scanf
+    movq $format_for_int, %rdi  # first argument for scanf
     call scanf
-    movzbq -8(%rbp), %r14 # save the start int r14
+    movzbq -8(%rbp), %r14   # save the start int r14
     
     # getting the stop index char
-    leaq -16(%rbp), %rsi # allocating memory for the char
+    leaq -16(%rbp), %rsi    # allocating memory for the char
     xor %rax, %rax
-    movq $format_for_int, %rdi # first argument for scanf
+    movq $format_for_int, %rdi  # first argument for scanf
     call scanf
-    movzbq -16(%rbp), %r15 # save the stop index %r14
+    movzbq -16(%rbp), %r15  # save the stop index %r14
     
     
     #moving parametrs to psrijcpy
@@ -287,10 +303,10 @@ run_func:
     xor %rdx, %rdx
     xor %rcx, %rcx
     
-    mov %r13, %rsi # moving second string to rdi
-    mov %r12, %rdi # moving first string to rsi
-    mov %r14, %rdx # moving i index to rdx
-    mov %r15, %rcx # moving j index to rcx
+    mov %r13, %rsi  # moving second string to rdi
+    mov %r12, %rdi  # moving first string to rsi
+    mov %r14, %rdx  # moving i index to rdx
+    mov %r15, %rcx  # moving j index to rcx
     
     call pstrijcmp
     
@@ -303,13 +319,13 @@ run_func:
     xor %rax, %rax
     mov $case53_invalid_input ,%rdi
     call printf
-    mov %r15, %rax # return rax as usual
+    mov %r15, %rax  # return rax as usual
     jmp .printResult55
        
     
     #print result
 .printResult55:
-    mov %rax, %rsi # print the result of the function
+    mov %rax, %rsi  # print the result of the function
     mov $case55_print_result, %rdi
     xor %rax, %rax
     call printf
